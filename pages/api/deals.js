@@ -4,7 +4,7 @@ export default async function handler(req, res) {
         
         const results = await fetch( process.env.API_HOST+'api.php?key='+process.env.API_KEY+'&region=HK&sales=1')
         const json = await results.json()
-        res.status(400).json({
+        res.status(200).json({
             data: json
         })
 

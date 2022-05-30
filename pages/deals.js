@@ -3,10 +3,36 @@ import Head from "next/head";
 import Image from "next/image";
 import { host } from "../config"
 import styles from '../styles/Home.module.css'
+import deals from "./api/deals";
+import { useRouter } from 'next/router'
+import React, { useState, useEffect } from 'react';
+import { TripleMaze } from "react-spinner-animated";
+import 'react-spinner-animated/dist/index.css'
 
 const Deal = dynamic(() => import('../components/deal'))
 
-function Layout({sales}){
+function Layout(){
+
+    const router = useRouter()
+
+    const [data, setData] = useState(null)
+    const [isLoading, setLoading] = useState(false)
+
+    useEffect(() => {
+        if(!router.isReady) return;
+        setLoading(true)
+        fetch('/api/deals')
+            .then((res) => res.json())
+            .then((data) => {
+            setData(data.data)
+            setLoading(false)
+            })
+        }, [router.isReady])
+
+    if (isLoading) return <TripleMaze text={"Loading..."} bgColor={"#FFFFFF"} 
+    center={true} width={"150px"} height={"150px"}/>
+    if (!data) return <div></div>
+
     return (
         <div >
             <Head>
@@ -16,7 +42,7 @@ function Layout({sales}){
             </Head>
             <main className="w-full flex flex-col block">
                 
-                {sales.map((sale) => (
+                {data.sales.map((sale) => (
                     <Deal key="sale.ID" sale={sale} />
                 ))}
 
@@ -44,12 +70,9 @@ export function DealTitle({sale}) {
 
 export async function getStaticProps() {
 
-    const res = await fetch( host + '/api/deals' )
-    const json = await res.json()
-
     return {
         props: {
-            sales : json.data.sales
+            sales : []
         }
     }
 }
